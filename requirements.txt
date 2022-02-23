@@ -8,7 +8,6 @@ jupyterlab_sql
 streamlit
 jupyter-server-proxy
 nbserverproxy
-sqlite==3.36.0
 
 # necessary for data job
 requests~=2.26.0
