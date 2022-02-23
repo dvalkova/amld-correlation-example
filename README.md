@@ -1,6 +1,6 @@
 # VDK 
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/dvalkova/amld-correlation-example/HEAD?labpath=https%3A%2F%2Fgithub.com%2Fdvalkova%2Famld-correlation-example%2Fhello.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/dvalkova/amld-correlation-example/0244fcf3293eecda264ca6374ea7f78bd3d3e9e2?urlpath=lab%2Ftree%2Fhello.ipynb)
 
 https://mybinder.readthedocs.io 
 # amld-correlation-example
