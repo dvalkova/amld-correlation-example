@@ -22,9 +22,9 @@ def run(job_input: IJobInput):
     log.info(f"Starting job step {__name__}")
 
     # Get last_date property/parameter:
-    #  - if the this is the first job run, initialize last_date to 2020-01-01 to fetch all rows
-    #  - if the data job was run previously, take the property value already stored in the DJ from the previous run
-    last_date = job_input.get_property("last_date", "2020-01-01")
+    #  - if the this is the first script run, initialize last_date to 2020-01-01 to fetch all rows
+    #  - if the script was run previously, take the property value already stored in the DJ from the previous run
+    last_date = job_input.get_property("last_date_correlation", "2020-01-01")
 
     # Read the candle review data and transform to df
     reviews = job_input.execute_query(
@@ -84,8 +84,7 @@ def run(job_input: IJobInput):
             destination_table="weekly_correlation",
             method="sqlite"
         )
-
-    # Reset the last_date property value to the latest date in the covid source db table
-    job_input.set_all_properties({"last_date": max(covid_df['date'])})
+        # Reset the last_date property value to the latest date in the covid source db table
+        job_input.set_all_properties({"last_date_correlation": max(df_merged_weekly['date'])})
 
     log.info(f"Success! {len(df_merged_weekly)} rows were inserted.")

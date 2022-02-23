@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 import pandas as pd
 import logging
-import webscrape
 import datefinder
 from datetime import datetime
+import webscrape
 from vdk.api.job_input import IJobInput
 
 log = logging.getLogger(__name__)
@@ -19,9 +19,9 @@ def run(job_input: IJobInput):
     log.info(f"Starting job step {__name__}")
 
     # Get last_date property/parameter:
-    #  - if the this is the first job run, initialize last_date to 2020-01-01 to fetch all rows
-    #  - if the data job was run previously, take the property value already stored in the DJ from the previous run
-    last_date = job_input.get_property("last_date", "2020-01-01")
+    #  - if this is the first script run, initialize last_date to 2020-01-01 to fetch all rows
+    #  - if the script was run previously, take the property value already stored in the DJ from the previous run
+    last_date = job_input.get_property("last_date_amazon", "2020-01-01")
 
     # Initialize variables
     i = 1
@@ -84,6 +84,8 @@ def run(job_input: IJobInput):
             destination_table="yankee_candle_reviews",
             method="sqlite"
         )
+        # Reset the last_date property value to the latest date in the amazon source db table
+        job_input.set_all_properties({"last_date_amazon": max(df['Date'])})
 
     log.info(f"Success! {len(df)} rows were inserted in table yankee_candle_reviews.")
 
