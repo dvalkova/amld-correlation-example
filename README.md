@@ -1,6 +1,6 @@
 # VDK 
 
-[![Binder](https://mybinder.org/badge_logo.svg)]([![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/dvalkova/amld-correlation-example/HEAD))
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/dvalkova/amld-correlation-example/HEAD)
 
 https://mybinder.readthedocs.io 
 # amld-correlation-example
