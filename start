@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# TODO: change to actual db (not sqlite)
+export VDK_SQLITE_FILE=/tmp/my-db.db
+export DATABASE_URL=sqlite:////tmp/my-db.db
+export VDK_API_TOKEN=FQue3EehGQUKIwMJ5hlxwjrYL0j9BfigV87R2QbQXzrpEba1dOwbbrHax11Q3O98
+export VDK_CONTROL_SERVICE_REST_API_URL=https://iaclqhm5xk.execute-api.us-west-1.amazonaws.com
+export VDK_API_TOKEN_AUTHORIZATION_URL=https://console-stg.cloud.vmware.com/csp/gateway/am/api/auth/api-tokens/authorize
+
+exec "$@"
