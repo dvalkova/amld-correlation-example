@@ -21,7 +21,11 @@ def run(job_input: IJobInput):
     # Get last_date property/parameter:
     #  - if this is the first script run, initialize last_date to 2020-01-01 to fetch all rows
     #  - if the script was run previously, take the property value already stored in the DJ from the previous run
-    last_date = job_input.get_property("last_date_amazon", "2020-01-01")
+    props = job_input.get_all_properties()
+    if "last_date_amazon" in props:
+        pass
+    else:
+        props["last_date_amazon"] = "2020-01-01"
 
     # Initialize variables
     i = 1
@@ -31,7 +35,7 @@ def run(job_input: IJobInput):
     date = datetime.now().strftime("%Y-%m-%d")
 
     # Go through the review pages and scrape reviews from the beginning of 2020 onwards
-    while date > last_date:
+    while date > props["last_date_amazon"]:
         log.info(f'Rendering page {i}...')
         # Parameterize the URL to iterate over the pages
         url = f"https://www.amazon.com/Yankee-Candle-Large-Balsam-Cedar/product-reviews/B000JDGC78/ref=cm_cr_arp_d_\
@@ -85,7 +89,8 @@ def run(job_input: IJobInput):
             method="sqlite"
         )
         # Reset the last_date property value to the latest date in the amazon source db table
-        job_input.set_all_properties({"last_date_amazon": max(df['Date'])})
+        props["last_date_amazon"] = max(df['Date'])
+        job_input.set_all_properties(props)
 
     log.info(f"Success! {len(df)} rows were inserted in table yankee_candle_reviews.")
 

@@ -21,14 +21,18 @@ def run(job_input: IJobInput):
     # Get last_date property/parameter:
     #  - if the this is the first script run, initialize last_date to 2020-01-01 to fetch all rows
     #  - if the script was run previously, take the property value already stored in the DJ from the previous run
-    last_date = job_input.get_property("last_date_amazon_transformed", "2020-01-01")
+    props = job_input.get_all_properties()
+    if "last_date_amazon_transformed" in props:
+        pass
+    else:
+        props["last_date_amazon_transformed"] = "2020-01-01"
 
     # Read the candle review data from the local SQLite DB and transform into df
     reviews_raw = job_input.execute_query(
         f"""
         SELECT *
         FROM yankee_candle_reviews
-        WHERE Date > '{last_date}'
+        WHERE Date > '{props["last_date_amazon_transformed"]}'
         ORDER BY Date
         """
     )
@@ -59,9 +63,9 @@ def run(job_input: IJobInput):
             destination_table="yankee_candle_reviews_transformed",
             method="sqlite"
         )
-
         # Reset the last_date property value to the latest date in the transformed db table
-        job_input.set_all_properties({"last_date_amazon_transformed": max(df_group['date'])})
-
-    log.info(f"Success! {len(df_group)} rows were inserted in yankee_candle_reviews_transformed table.")
-
+        props["last_date_amazon_transformed"] = max(df_group['date'])
+        job_input.set_all_properties(props)
+        log.info(f"Success! {len(df_group)} rows were inserted in yankee_candle_reviews_transformed table.")
+    else:
+        log.info("No new records to ingest.")

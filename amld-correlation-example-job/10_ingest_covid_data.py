@@ -19,7 +19,11 @@ def run(job_input: IJobInput):
     # Get last_date property/parameter for covid data:
     #  - if this is the first script run, initialize last_date to 2020-01-01 to fetch all rows
     #  - if the script was run previously, take the property value already stored in the DJ from the previous run
-    last_date = job_input.get_property("last_date_covid", "2020-01-01")
+    props = job_input.get_all_properties()
+    if "last_date_covid" in props:
+        pass
+    else:
+        props["last_date_covid"] = "2020-01-01"
 
     # Initialize URL
     url = "https://covid-api.mmediagroup.fr/v1/history?country=US&status=confirmed"
@@ -40,7 +44,7 @@ def run(job_input: IJobInput):
     # Convert the dictionary into a DF
     df_covid = pd.DataFrame.from_dict(dates_cases_dict)
     # Keep only the dates which are not present in the table already (based on last_date_covid property)
-    df_covid = df_covid[df_covid['obs_date'] > last_date]
+    df_covid = df_covid[df_covid['obs_date'] > props["last_date_covid"]]
 
     # Ingest the dictionary into a SQLite database using VDK's job_input method (if any results are fetched)
     if len(df_covid) > 0:
@@ -51,6 +55,7 @@ def run(job_input: IJobInput):
             method="sqlite"
         )
         # Reset the last_date property value to the latest date in the covid source db table
-        job_input.set_all_properties({"last_date_covid": max(df_covid['obs_date'])})
+        props["last_date_covid"] = max(df_covid['obs_date'])
+        job_input.set_all_properties(props)
 
     log.info(f"Success! {len(df_covid)} rows were inserted in table covid_cases_usa_daily.")

@@ -24,14 +24,18 @@ def run(job_input: IJobInput):
     # Get last_date property/parameter:
     #  - if the this is the first script run, initialize last_date to 2020-01-01 to fetch all rows
     #  - if the script was run previously, take the property value already stored in the DJ from the previous run
-    last_date = job_input.get_property("last_date_correlation", "2020-01-01")
+    props = job_input.get_all_properties()
+    if "last_date_correlation" in props:
+        pass
+    else:
+        props["last_date_correlation"] = "2020-01-01"
 
     # Read the candle review data and transform to df
     reviews = job_input.execute_query(
         f"""
         SELECT date, num_no_scent_reviews 
         FROM yankee_candle_reviews_transformed
-        WHERE date > '{last_date}'
+        WHERE date > '{props["last_date_correlation"]}'
         """
     )
     reviews_df = pd.DataFrame(reviews, columns=['date', 'num_no_scent_reviews'])
@@ -43,7 +47,7 @@ def run(job_input: IJobInput):
         f"""
         SELECT * 
         FROM covid_cases_usa_daily
-        WHERE date > '{last_date}'
+        WHERE date > '{props["last_date_correlation"]}'
         """
     )
     covid_df = pd.DataFrame(covid, columns=['date', 'number_of_covid_cases'])
@@ -77,6 +81,9 @@ def run(job_input: IJobInput):
         # Add them as a column in the df
         df_merged_weekly['correlation_coeff'] = corr_coeff
 
+        # Original date format: "2022-02-06T00:00:00". Transform into "2022-02-06"
+        df_merged_weekly['date'] = df_merged_weekly['date'].dt.strftime('%Y-%m-%d')
+
         # Ingest the weekly data and correlation coefficients into a new table using VDK's job_input method
         job_input.send_tabular_data_for_ingestion(
             rows=df_merged_weekly.values,
@@ -85,6 +92,8 @@ def run(job_input: IJobInput):
             method="sqlite"
         )
         # Reset the last_date property value to the latest date in the covid source db table
-        job_input.set_all_properties({"last_date_correlation": max(df_merged_weekly['date'])})
-
-    log.info(f"Success! {len(df_merged_weekly)} rows were inserted.")
+        props["last_date_correlation"] = max(df_merged_weekly['date'])
+        job_input.set_all_properties(props)
+        log.info(f"Success! {len(df_merged_weekly)} rows were inserted.")
+    else:
+        log.info("No new records to ingest.")

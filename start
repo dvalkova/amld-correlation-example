@@ -3,9 +3,8 @@
 # TODO: change to actual db (not sqlite)
 export VDK_DB_DEFAULT_TYPE=SQLITE
 export VDK_INGEST_METHOD_DEFAULT=SQLITE
-export VDK_SQLITE_FILE=correlation-example-db.db
-export VDK_INGEST_TARGET_DEFAULT=correlation-example-db.db
-export DATABASE_URL=sqlite:////home/jovyan/correlation-example-db.db
+export VDK_SQLITE_FILE=/home/jovyan/amld-correlation-example-job/correlation-example-db.db
+export VDK_INGEST_TARGET_DEFAULT=/home/jovyan/amld-correlation-example-job/correlation-example-db.db
 export VDK_API_TOKEN=FQue3EehGQUKIwMJ5hlxwjrYL0j9BfigV87R2QbQXzrpEba1dOwbbrHax11Q3O98
 export VDK_CONTROL_SERVICE_REST_API_URL=https://iaclqhm5xk.execute-api.us-west-1.amazonaws.com
 export VDK_API_TOKEN_AUTHORIZATION_URL=https://console-stg.cloud.vmware.com/csp/gateway/am/api/auth/api-tokens/authorize
