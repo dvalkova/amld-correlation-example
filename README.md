@@ -1,5 +1,5 @@
 # VDK 
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://hub.gke2.mybinder.org/user/dvalkova-amld-c-elation-example-j6tpxqwv/lab/tree/data_job_run.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/dvalkova/amld-correlation-example/HEAD?urlpath=https%3A%2F%2Fgithub.com%2Fdvalkova%2Famld-correlation-example%2Fdata_job_run.ipynb)
 
 https://mybinder.readthedocs.io 
