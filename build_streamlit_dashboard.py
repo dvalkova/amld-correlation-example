@@ -18,7 +18,7 @@ st.header('Number of weekly COVID cases and "no scent" reviews over time')
 
 # Definitions
 os.chdir(pathlib.Path(__file__).parent.absolute())
-db_file = 'correlation-example-db.db'
+db_file = r'amld-correlation-example-job/correlation-example-db.db'
 
 # Create a connection to the db and a cursor to read the weekly correlation table
 con = sqlite3.connect(db_file)
@@ -26,8 +26,8 @@ cursor = con.cursor()
 # Fetch data
 cursor.execute("SELECT * FROM weekly_correlation")
 df = pd.DataFrame(cursor.fetchall(), columns=list(map(lambda x: x[0], cursor.description)))
-# Original date format: "2022-02-06T00:00:00". Transform into "2022-02-06"
-df['date'] = pd.to_datetime(df['date'].str[:10], format='%Y-%m-%d')
+# Transform into datetime Series
+df['date'] = pd.to_datetime(df['date'], format='%Y-%m-%d')
 
 # Plot # COVID cases vs no-scent complaints over time
 fig, ax = plt.subplots(figsize=(12, 6))
@@ -60,4 +60,7 @@ st.line_chart(data=df[['correlation_coeff']])
 # Show data in a table
 st.write('Underlying data:')
 df = df.reset_index().rename(columns={'index': 'week'}).sort_values('week', ascending=False)
+# Convert date to string
+df['week'] = df['week'].dt.strftime('%Y-%m-%d')
+# Visualize in the dashboard
 st.dataframe(df[['week', 'correlation_coeff']])

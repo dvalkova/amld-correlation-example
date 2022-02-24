@@ -21,9 +21,8 @@ def run(job_input: IJobInput):
 
     log.info(f"Starting job step {__name__}")
 
-    # Get last_date property/parameter:
-    #  - if the this is the first script run, initialize last_date to 2020-01-01 to fetch all rows
-    #  - if the script was run previously, take the property value already stored in the DJ from the previous run
+    # Create/retrieve the data job property storing latest ingested date for weekly_correlation table.
+    # If the property does not exist, set it to "2020-01-01" (first ingested date).
     props = job_input.get_all_properties()
     if "last_date_correlation" in props:
         pass
@@ -39,8 +38,6 @@ def run(job_input: IJobInput):
         """
     )
     reviews_df = pd.DataFrame(reviews, columns=['date', 'num_no_scent_reviews'])
-    # Original date format: "2022-02-06T00:00:00". Transform into "2022-02-06"
-    #reviews_df['date'] = reviews_df['date'].str[:10]
 
     # Read the covid data and transform to df
     covid = job_input.execute_query(
@@ -55,24 +52,27 @@ def run(job_input: IJobInput):
     # Merge the two dataframes and fill missing values with 0. Use right join since reviews_df doesn't contain all dates
     df_merged = reviews_df.merge(covid_df, on=['date'], how='right').fillna(0)
 
+    # Calculate new covid cases per day (current numbers are cumulative)
+    df_merged['date'] = pd.to_datetime(df_merged['date'], format='%Y-%m-%d')
+    df_merged['number_of_covid_cases_daily'] = df_merged['number_of_covid_cases'].diff(periods=-1).fillna(0)
+
+    # Aggregate data on weekly level
+    df_merged_weekly = df_merged.copy()
+    # This step is necessary so that weekly calculations look 7 days ahead instead of backwards
+    # (i.e. on Monday report the numbers for the period Monday-Sunday of the same week)
+    df_merged_weekly['date'] = pd.to_datetime(df_merged_weekly['date']) - pd.to_timedelta(6, unit='d')
+    # Aggregate on week-start level
+    df_merged_weekly = df_merged_weekly.resample('W-MON', on='date').sum().reset_index()
+    df_merged_weekly = df_merged_weekly.rename(columns={'number_of_covid_cases_daily': 'number_of_covid_cases_weekly'})\
+                                       .drop(columns=["number_of_covid_cases"])
+    # Sort df values by date
+    df_merged_weekly = df_merged_weekly.sort_values('date', ascending=True).reset_index(drop=True)
+
+    # Check if the last ingested week is contained in df_merged_weekly. If yes, remove it.
+    df_merged_weekly = df_merged_weekly[df_merged_weekly['date'] > props["last_date_correlation"]]
+
     # If any data is returned, calculate weekly stats
-    if len(df_merged) > 0:
-        # Calculate new covid cases per day (current numbers are cumulative)
-        df_merged['date'] = pd.to_datetime(df_merged['date'], format='%Y-%m-%d')
-        df_merged['number_of_covid_cases_daily'] = df_merged['number_of_covid_cases'].diff(periods=-1).fillna(0)
-
-        # Aggregate data on weekly level
-        df_merged_weekly = df_merged.copy()
-        # This step is necessary so that weekly calculations look 7 days ahead instead of backwards
-        # (i.e. on Monday report the numbers for the period Monday-Sunday)
-        df_merged_weekly['date'] = pd.to_datetime(df_merged_weekly['date']) - pd.to_timedelta(6, unit='d')
-        # Aggregate on week-start level
-        df_merged_weekly = df_merged_weekly.resample('W-MON', on='date').sum().reset_index()
-        df_merged_weekly = df_merged_weekly.rename(columns={'number_of_covid_cases_daily': 'number_of_covid_cases_weekly'})\
-                                           .drop(columns=["number_of_covid_cases"])
-        # Sort df values by date
-        df_merged_weekly = df_merged_weekly.sort_values('date', ascending=True).reset_index(drop=True)
-
+    if len(df_merged_weekly) > 0:
         # Calculate correlation coefficients for each week in the df_merged_weekly table
         corr_coeff = [np.nan]
         for i in range(1, len(df_merged_weekly)):

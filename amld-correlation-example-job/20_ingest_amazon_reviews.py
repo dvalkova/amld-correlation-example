@@ -12,15 +12,14 @@ log = logging.getLogger(__name__)
 
 def run(job_input: IJobInput):
     """
-    Scrape critical Amazon Reviews for one of the most popular Yankee candles on Amazon
+    Scrape bad Amazon Reviews for one of the most popular Yankee candles on Amazon
     and ingest them into a local SQLite DB.
     """
 
     log.info(f"Starting job step {__name__}")
 
-    # Get last_date property/parameter:
-    #  - if this is the first script run, initialize last_date to 2020-01-01 to fetch all rows
-    #  - if the script was run previously, take the property value already stored in the DJ from the previous run
+    # Create/retrieve the data job property storing latest ingested date for yankee_candle_reviews table.
+    # If the property does not exist, set it to "2020-01-01" (around the start of the pandemic).
     props = job_input.get_all_properties()
     if "last_date_amazon" in props:
         pass
@@ -34,7 +33,7 @@ def run(job_input: IJobInput):
     # Date to start iterating from = current date (in the format "2020-01-01")
     date = datetime.now().strftime("%Y-%m-%d")
 
-    # Go through the review pages and scrape reviews from the beginning of 2020 onwards
+    # Go through the review pages and scrape reviews
     while date > props["last_date_amazon"]:
         log.info(f'Rendering page {i}...')
         # Parameterize the URL to iterate over the pages
@@ -78,8 +77,8 @@ def run(job_input: IJobInput):
 
     # Create a pandas dataframe with the review text and dates
     df = pd.DataFrame(zip(date_result, rev_result), columns=['Date', 'Review'])
-    # Since the loop above always executes at least once (current timestamp is > last ingested review), the first review
-    # page will always be scraped, so delete the already ingested records manually from the df
+    # Since the loop above always executes at least once (current timestamp > last ingested review), the first review
+    # page will always be scraped, so delete the already ingested records manually from the df using the DJ property
     df = df[df['Date'] > props["last_date_amazon"]]
     log.info(f"Shape of the review dataset: {df.shape}")
 

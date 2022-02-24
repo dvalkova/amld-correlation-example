@@ -18,9 +18,8 @@ def run(job_input: IJobInput):
 
     log.info(f"Starting job step {__name__}")
 
-    # Get last_date property/parameter:
-    #  - if the this is the first script run, initialize last_date to 2020-01-01 to fetch all rows
-    #  - if the script was run previously, take the property value already stored in the DJ from the previous run
+    # Create/retrieve the data job property storing latest ingested date for yankee_candle_reviews_transformed table.
+    # If the property does not exist, set it to "2020-01-01" (first ingested date).
     props = job_input.get_all_properties()
     if "last_date_amazon_transformed" in props:
         pass
@@ -52,7 +51,7 @@ def run(job_input: IJobInput):
         df_group2 = df[df['flag_no_scent']==True].groupby('date').count().reset_index()
         df_group2 = df_group2.drop(columns=['review']).rename(columns={'flag_no_scent': 'num_no_scent_reviews'})
 
-        # Combine the columns in one df. Use "left" join to keep the records with negative reviews
+        # Combine the columns in one df. Use "left" join to keep the dates with negative reviews
         # but no "no scent" reviews
         df_group = df_group.merge(df_group2, on=['date'], how='left')
 
