@@ -78,6 +78,9 @@ def run(job_input: IJobInput):
 
     # Create a pandas dataframe with the review text and dates
     df = pd.DataFrame(zip(date_result, rev_result), columns=['Date', 'Review'])
+    # Since the loop above always executes at least once (current timestamp is > last ingested review), the first review
+    # page will always be scraped, so delete the already ingested records manually from the df
+    df = df[df['Date'] > props["last_date_amazon"]]
     log.info(f"Shape of the review dataset: {df.shape}")
 
     # Ingest the dataframe into a SQLite database using VDK's job_input method (if any results are fetched)

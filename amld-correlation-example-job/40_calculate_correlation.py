@@ -47,7 +47,7 @@ def run(job_input: IJobInput):
         f"""
         SELECT * 
         FROM covid_cases_usa_daily
-        WHERE date > '{props["last_date_correlation"]}'
+        WHERE obs_date > '{props["last_date_correlation"]}'
         """
     )
     covid_df = pd.DataFrame(covid, columns=['date', 'number_of_covid_cases'])
