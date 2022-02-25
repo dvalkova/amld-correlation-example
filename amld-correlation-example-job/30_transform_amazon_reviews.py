@@ -7,6 +7,7 @@ import pathlib
 from vdk.api.job_input import IJobInput
 
 log = logging.getLogger(__name__)
+# make current directory to be the same as job directory
 os.chdir(pathlib.Path(__file__).parent.absolute())
 
 
@@ -24,7 +25,7 @@ def run(job_input: IJobInput):
     if "last_date_amazon_transformed" in props:
         pass
     else:
-        props["last_date_amazon_transformed"] = "2020-01-01"
+        props["last_date_amazon_transformed"] = '2020-01-01'
 
     # Read the candle review data from the local SQLite DB and transform into df
     reviews_raw = job_input.execute_query(
@@ -59,8 +60,7 @@ def run(job_input: IJobInput):
         job_input.send_tabular_data_for_ingestion(
             rows=df_group.values,
             column_names=df_group.columns.to_list(),
-            destination_table="yankee_candle_reviews_transformed",
-            method="sqlite"
+            destination_table="yankee_candle_reviews_transformed"
         )
         # Reset the last_date property value to the latest date in the transformed db table
         props["last_date_amazon_transformed"] = max(df_group['date'])

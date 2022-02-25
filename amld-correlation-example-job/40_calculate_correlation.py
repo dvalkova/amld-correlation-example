@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from vdk.api.job_input import IJobInput
 
 log = logging.getLogger(__name__)
+# make current directory to be the same as job directory
 os.chdir(pathlib.Path(__file__).parent.absolute())
 
 
@@ -27,7 +28,7 @@ def run(job_input: IJobInput):
     if "last_date_correlation" in props:
         pass
     else:
-        props["last_date_correlation"] = "2020-01-01"
+        props["last_date_correlation"] = '2020-01-01'
 
     # Read the candle review data and transform to df
     reviews = job_input.execute_query(
@@ -88,8 +89,7 @@ def run(job_input: IJobInput):
         job_input.send_tabular_data_for_ingestion(
             rows=df_merged_weekly.values,
             column_names=df_merged_weekly.columns.to_list(),
-            destination_table="weekly_correlation",
-            method="sqlite"
+            destination_table="weekly_correlation"
         )
         # Reset the last_date property value to the latest date in the covid source db table
         props["last_date_correlation"] = max(df_merged_weekly['date'])

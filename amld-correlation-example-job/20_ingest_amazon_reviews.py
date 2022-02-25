@@ -24,7 +24,7 @@ def run(job_input: IJobInput):
     if "last_date_amazon" in props:
         pass
     else:
-        props["last_date_amazon"] = "2020-01-01"
+        props["last_date_amazon"] = '2020-01-01'
 
     # Initialize variables
     i = 1
@@ -87,8 +87,7 @@ def run(job_input: IJobInput):
         job_input.send_tabular_data_for_ingestion(
             rows=df.values,
             column_names=df.columns.to_list(),
-            destination_table="yankee_candle_reviews",
-            method="sqlite"
+            destination_table="yankee_candle_reviews"
         )
         # Reset the last_date property value to the latest date in the amazon source db table
         props["last_date_amazon"] = max(df['Date'])

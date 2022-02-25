@@ -19,10 +19,14 @@ def run(job_input: IJobInput):
     # Create/retrieve the data job property storing latest ingested date for covid_cases_usa_daily table.
     # If the property does not exist, set it to "2020-01-01" (around the start of the pandemic).
     props = job_input.get_all_properties()
+    print(props)
+    job_input.set_all_properties({})
+    props = job_input.get_all_properties()
+    print(props)
     if "last_date_covid" in props:
         pass
     else:
-        props["last_date_covid"] = "2020-01-01"
+        props["last_date_covid"] = '2020-01-01'
 
     # Initialize URL
     url = "https://covid-api.mmediagroup.fr/v1/history?country=US&status=confirmed"
@@ -50,8 +54,7 @@ def run(job_input: IJobInput):
         job_input.send_tabular_data_for_ingestion(
             rows=df_covid.values,
             column_names=df_covid.columns.to_list(),
-            destination_table="covid_cases_usa_daily",
-            method="sqlite"
+            destination_table="covid_cases_usa_daily"
         )
         # Reset the last_date property value to the latest date in the covid source db table
         props["last_date_covid"] = max(df_covid['obs_date'])

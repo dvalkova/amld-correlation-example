@@ -2,7 +2,9 @@ import os
 import pandas as pd
 import pathlib
 import streamlit as st
-import sqlite3
+from trino import dbapi
+from trino import constants
+from trino.auth import BasicAuthentication
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import scipy.stats
@@ -18,14 +20,25 @@ st.header('Number of weekly COVID cases and "no scent" reviews over time')
 
 # Definitions
 os.chdir(pathlib.Path(__file__).parent.absolute())
-db_file = r'amld-correlation-example-job/correlation-example-db.db'
+db_file = 'correlation-example-db.db'
 
-# Create a connection to the db and a cursor to read the weekly correlation table
-con = sqlite3.connect(db_file)
-cursor = con.cursor()
+# Create a connection to the db
+auth = None
+conn = dbapi.connect(
+    host=os.environ.get("VDK_TRINO_HOST"),
+    port=int(os.environ.get("VDK_TRINO_PORT")),
+    user="user",
+    auth=auth,
+    catalog=os.environ.get("VDK_TRINO_CATALOG", 'mysql'),
+    schema=os.environ.get("VDK_TRINO_SCHEMA", "default"),
+    http_scheme=constants.HTTP,
+    verify=False,
+    request_timeout=600,
+)
 # Fetch data
-cursor.execute("SELECT * FROM weekly_correlation")
-df = pd.DataFrame(cursor.fetchall(), columns=list(map(lambda x: x[0], cursor.description)))
+df = pd.read_sql_query(
+    f"SELECT * FROM weekly_correlation", conn
+)
 # Transform into datetime Series
 df['date'] = pd.to_datetime(df['date'], format='%Y-%m-%d')
 
