@@ -4,6 +4,7 @@ import pandas as pd
 import logging
 import os
 import pathlib
+import time
 from vdk.api.job_input import IJobInput
 
 log = logging.getLogger(__name__)
@@ -36,7 +37,7 @@ def run(job_input: IJobInput):
         ORDER BY Date
         """
     )
-    df = pd.DataFrame(reviews_raw, columns=['date','review'])
+    df = pd.DataFrame(reviews_raw, columns=['date', 'review'])
 
     # If any data is returned, transform
     if len(df) > 0:
@@ -54,7 +55,7 @@ def run(job_input: IJobInput):
 
         # Combine the columns in one df. Use "left" join to keep the dates with negative reviews
         # but no "no scent" reviews
-        df_group = df_group.merge(df_group2, on=['date'], how='left')
+        df_group = df_group.merge(df_group2, on=['date'], how='left').fillna(0)
 
         # Ingest the transformed df into a new table using VDK's job_input method
         job_input.send_tabular_data_for_ingestion(
@@ -66,5 +67,7 @@ def run(job_input: IJobInput):
         props["last_date_amazon_transformed"] = max(df_group['date'])
         job_input.set_all_properties(props)
         log.info(f"Success! {len(df_group)} rows were inserted in yankee_candle_reviews_transformed table.")
+        # Delay execution for 10 seconds so that records are ingested into the DB before going to the next script
+        time.sleep(10)
     else:
         log.info("No new records to ingest.")

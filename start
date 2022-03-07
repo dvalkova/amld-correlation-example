@@ -1,10 +1,5 @@
 #!/bin/bash
 
-# TODO: change to actual db (not sqlite)
-# export VDK_DB_DEFAULT_TYPE=SQLITE
-# export VDK_INGEST_METHOD_DEFAULT=SQLITE
-# export VDK_SQLITE_FILE=/home/jovyan/amld-correlation-example-job/correlation-example-db.db
-# export VDK_INGEST_TARGET_DEFAULT=/home/jovyan/amld-correlation-example-job/correlation-example-db.db
 export VDK_API_TOKEN=FQue3EehGQUKIwMJ5hlxwjrYL0j9BfigV87R2QbQXzrpEba1dOwbbrHax11Q3O98
 export VDK_CONTROL_SERVICE_REST_API_URL=https://iaclqhm5xk.execute-api.us-west-1.amazonaws.com
 export VDK_API_TOKEN_AUTHORIZATION_URL=https://console-stg.cloud.vmware.com/csp/gateway/am/api/auth/api-tokens/authorize
@@ -15,7 +10,7 @@ export VDK_TRINO_PORT=1094
 export VDK_TRINO_USE_SSL=False
 
 export VDK_DB_DEFAULT_TYPE=TRINO
-export VDK_INGEST_METHOD_DEFAULT=TRINO
+export VDK_INGEST_METHOD_DEFAULT=trino
 export VDK_TRINO_CATALOG=mysql
 export VDK_TRINO_SCHEMA=default
 export VDK_INGEST_TARGET_DEFAULT=trino://user@a60c369ea7ece4c73b3ac15cb64a7d30-1152784645.us-west-1.elb.amazonaws.com:1094/mysql

@@ -5,6 +5,7 @@ def run(job_input: IJobInput):
     """
     This helper script could be used to reset the job properties in case one wants to reingest
     the full data from the sources.
+    To execute the script, please move it to the amld-correlation-example-job folder.
     """
 
     props = job_input.get_all_properties()

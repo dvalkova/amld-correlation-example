@@ -4,6 +4,7 @@ import pandas as pd
 import logging
 import datefinder
 from datetime import datetime
+import time
 import webscrape
 from vdk.api.job_input import IJobInput
 
@@ -80,6 +81,11 @@ def run(job_input: IJobInput):
     # Since the loop above always executes at least once (current timestamp > last ingested review), the first review
     # page will always be scraped, so delete the already ingested records manually from the df using the DJ property
     df = df[df['Date'] > props["last_date_amazon"]]
+    # Remove emojis from the Review column
+    for i in range(0, len(df)):
+        df.loc[i, 'Review'] = webscrape.remove_emoji(df.loc[i, 'Review'])
+    # print(df.head(15))
+    #df.to_csv(r'C:\Users\dvalkova\OneDrive - VMware, Inc\VMwareCorp\Desktop\test4.csv')
     log.info(f"Shape of the review dataset: {df.shape}")
 
     # Ingest the dataframe into a SQLite database using VDK's job_input method (if any results are fetched)
@@ -94,4 +100,5 @@ def run(job_input: IJobInput):
         job_input.set_all_properties(props)
 
     log.info(f"Success! {len(df)} rows were inserted in table yankee_candle_reviews.")
-
+    # Delay execution for 10 seconds so that records are ingested into the DB before going to the next script
+    time.sleep(10)

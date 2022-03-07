@@ -19,10 +19,6 @@ def run(job_input: IJobInput):
     # Create/retrieve the data job property storing latest ingested date for covid_cases_usa_daily table.
     # If the property does not exist, set it to "2020-01-01" (around the start of the pandemic).
     props = job_input.get_all_properties()
-    print(props)
-    job_input.set_all_properties({})
-    props = job_input.get_all_properties()
-    print(props)
     if "last_date_covid" in props:
         pass
     else:

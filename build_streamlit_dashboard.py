@@ -20,7 +20,6 @@ st.header('Number of weekly COVID cases and "no scent" reviews over time')
 
 # Definitions
 os.chdir(pathlib.Path(__file__).parent.absolute())
-db_file = 'correlation-example-db.db'
 
 # Create a connection to the db
 auth = None
