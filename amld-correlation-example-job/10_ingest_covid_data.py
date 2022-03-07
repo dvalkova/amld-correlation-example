@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 def run(job_input: IJobInput):
     """
     Collect COVID-19 historical data for number of cases per day in the US since the start of the pandemic through
-    an API call. Ingest this data into a table in a local SQLite database.
+    an API call. Ingest this data into a table in a cloud Trino database.
     """
 
     log.info(f"Starting job step {__name__}")

@@ -8,7 +8,7 @@ import time
 from vdk.api.job_input import IJobInput
 
 log = logging.getLogger(__name__)
-# make current directory to be the same as job directory
+# Make the current directory the same as the job directory
 os.chdir(pathlib.Path(__file__).parent.absolute())
 
 
@@ -28,7 +28,7 @@ def run(job_input: IJobInput):
     else:
         props["last_date_amazon_transformed"] = '2020-01-01'
 
-    # Read the candle review data from the local SQLite DB and transform into df
+    # Read the candle review data from the cloud Trino DB and transform it into a df
     reviews_raw = job_input.execute_query(
         f"""
         SELECT *
@@ -54,7 +54,7 @@ def run(job_input: IJobInput):
         df_group2 = df_group2.drop(columns=['review']).rename(columns={'flag_no_scent': 'num_no_scent_reviews'})
 
         # Combine the columns in one df. Use "left" join to keep the dates with negative reviews
-        # but no "no scent" reviews
+        # but no "no scent" reviews. Fill missing values with 0.
         df_group = df_group.merge(df_group2, on=['date'], how='left').fillna(0)
 
         # Ingest the transformed df into a new table using VDK's job_input method

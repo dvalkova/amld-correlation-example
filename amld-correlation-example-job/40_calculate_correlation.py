@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from vdk.api.job_input import IJobInput
 
 log = logging.getLogger(__name__)
-# make current directory to be the same as job directory
+# Make the current directory the same as the job directory
 os.chdir(pathlib.Path(__file__).parent.absolute())
 
 
@@ -59,7 +59,7 @@ def run(job_input: IJobInput):
 
     # Aggregate data on weekly level
     df_merged_weekly = df_merged.copy()
-    # This step is necessary so that weekly calculations look 7 days ahead instead of backwards
+    # The next step is necessary so that weekly calculations look 7 days ahead instead of backwards
     # (i.e. on Monday report the numbers for the period Monday-Sunday of the same week)
     df_merged_weekly['date'] = pd.to_datetime(df_merged_weekly['date']) - pd.to_timedelta(6, unit='d')
     # Aggregate on week-start level

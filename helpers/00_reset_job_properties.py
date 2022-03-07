@@ -8,6 +8,5 @@ def run(job_input: IJobInput):
     To execute the script, please move it to the amld-correlation-example-job folder.
     """
 
-    props = job_input.get_all_properties()
     props = {}
     job_input.set_all_properties(props)

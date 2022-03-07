@@ -60,7 +60,7 @@ def rev_date(soup: BeautifulSoup) -> list:
 
 
 def remove_emoji(string: str) -> str:
-    """Remove emojis from text"""
+    """Remove emojis from text and returns a 'cleaned' string."""
 
     emoji_pattern = re.compile("["
                                u"\U0001F600-\U0001F64F"  # emoticons

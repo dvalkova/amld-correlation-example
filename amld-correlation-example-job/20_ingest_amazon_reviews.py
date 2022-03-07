@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 def run(job_input: IJobInput):
     """
     Scrape bad Amazon Reviews for one of the most popular Yankee candles on Amazon
-    and ingest them into a local SQLite DB.
+    and ingest them into a cloud Trino database.
     """
 
     log.info(f"Starting job step {__name__}")
@@ -78,14 +78,13 @@ def run(job_input: IJobInput):
 
     # Create a pandas dataframe with the review text and dates
     df = pd.DataFrame(zip(date_result, rev_result), columns=['Date', 'Review'])
-    # Since the loop above always executes at least once (current timestamp > last ingested review), the first review
+    # Since the while loop above always executes at least once (current timestamp > last ingested review), the first review
     # page will always be scraped, so delete the already ingested records manually from the df using the DJ property
     df = df[df['Date'] > props["last_date_amazon"]]
-    # Remove emojis from the Review column
+    # Remove emojis from the Review column since they are not utf-8 compliant and break ingestion
     for i in range(0, len(df)):
+        # Go through each review and clean it if needed
         df.loc[i, 'Review'] = webscrape.remove_emoji(df.loc[i, 'Review'])
-    # print(df.head(15))
-    #df.to_csv(r'C:\Users\dvalkova\OneDrive - VMware, Inc\VMwareCorp\Desktop\test4.csv')
     log.info(f"Shape of the review dataset: {df.shape}")
 
     # Ingest the dataframe into a SQLite database using VDK's job_input method (if any results are fetched)

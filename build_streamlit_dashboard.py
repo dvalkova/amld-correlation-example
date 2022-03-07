@@ -18,10 +18,10 @@ st.write('The dashboard shows the relationship between weekly COVID cases in the
 # Sub-header
 st.header('Number of weekly COVID cases and "no scent" reviews over time')
 
-# Definitions
+# Make the current directory the same as the job directory
 os.chdir(pathlib.Path(__file__).parent.absolute())
 
-# Create a connection to the db
+# Create a connection to the Trino DB
 auth = None
 conn = dbapi.connect(
     host=os.environ.get("VDK_TRINO_HOST"),
