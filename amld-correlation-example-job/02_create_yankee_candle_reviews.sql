@@ -1,4 +1,4 @@
 CREATE TABLE IF NOT EXISTS yankee_candle_reviews (
-    Date DATE,
+    Date VARCHAR,
     Review VARCHAR
 )
