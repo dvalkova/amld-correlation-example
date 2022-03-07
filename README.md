@@ -2,7 +2,7 @@
 
 To start the mybinder environment with the solution and results, click on the image below:
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/dvalkova/amld-correlation-example/HEAD)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/dvalkova/amld-correlation-example/HEAD?labpath=data_job_run.ipynb)
 
 ### Background
 
