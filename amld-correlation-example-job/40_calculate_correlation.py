@@ -53,27 +53,27 @@ def run(job_input: IJobInput):
     # Merge the two dataframes and fill missing values with 0. Use right join since reviews_df doesn't contain all dates
     df_merged = reviews_df.merge(covid_df, on=['date'], how='right').fillna(0)
 
-    # Calculate new covid cases per day (current numbers are cumulative)
-    df_merged['date'] = pd.to_datetime(df_merged['date'], format='%Y-%m-%d')
-    df_merged['number_of_covid_cases_daily'] = df_merged['number_of_covid_cases'].diff(periods=-1).fillna(0)
+    # If any data is returned, do some transformations and calculate weekly stats
+    if len(df_merged) > 0:
+        # Calculate new covid cases per day (current numbers are cumulative)
+        df_merged['date'] = pd.to_datetime(df_merged['date'], format='%Y-%m-%d')
+        df_merged['number_of_covid_cases_daily'] = df_merged['number_of_covid_cases'].diff(periods=-1).fillna(0)
 
-    # Aggregate data on weekly level
-    df_merged_weekly = df_merged.copy()
-    # The next step is necessary so that weekly calculations look 7 days ahead instead of backwards
-    # (i.e. on Monday report the numbers for the period Monday-Sunday of the same week)
-    df_merged_weekly['date'] = pd.to_datetime(df_merged_weekly['date']) - pd.to_timedelta(6, unit='d')
-    # Aggregate on week-start level
-    df_merged_weekly = df_merged_weekly.resample('W-MON', on='date').sum().reset_index()
-    df_merged_weekly = df_merged_weekly.rename(columns={'number_of_covid_cases_daily': 'number_of_covid_cases_weekly'})\
-                                       .drop(columns=["number_of_covid_cases"])
-    # Sort df values by date
-    df_merged_weekly = df_merged_weekly.sort_values('date', ascending=True).reset_index(drop=True)
+        # Aggregate data on weekly level
+        df_merged_weekly = df_merged.copy()
+        # The next step is necessary so that weekly calculations look 7 days ahead instead of backwards
+        # (i.e. on Monday report the numbers for the period Monday-Sunday of the same week)
+        df_merged_weekly['date'] = pd.to_datetime(df_merged_weekly['date']) - pd.to_timedelta(6, unit='d')
+        # Aggregate on week-start level
+        df_merged_weekly = df_merged_weekly.resample('W-MON', on='date').sum().reset_index()
+        df_merged_weekly = df_merged_weekly.rename(columns={'number_of_covid_cases_daily': 'number_of_covid_cases_weekly'})\
+                                           .drop(columns=["number_of_covid_cases"])
+        # Sort df values by date
+        df_merged_weekly = df_merged_weekly.sort_values('date', ascending=True).reset_index(drop=True)
 
-    # Check if the last ingested week is contained in df_merged_weekly. If yes, remove it.
-    df_merged_weekly = df_merged_weekly[df_merged_weekly['date'] > props["last_date_correlation"]]
+        # Check if the last ingested week is contained in df_merged_weekly. If yes, remove it.
+        df_merged_weekly = df_merged_weekly[df_merged_weekly['date'] > props["last_date_correlation"]]
 
-    # If any data is returned, calculate weekly stats
-    if len(df_merged_weekly) > 0:
         # Calculate correlation coefficients for each week in the df_merged_weekly table
         corr_coeff = [np.nan]
         for i in range(1, len(df_merged_weekly)):
