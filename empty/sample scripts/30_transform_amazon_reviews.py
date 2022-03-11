@@ -22,22 +22,19 @@ def run(job_input: IJobInput):
 
     # Create/retrieve the data job property storing latest ingested date for yankee_candle_reviews_transformed table.
     # If the property does not exist, set it to "2020-01-01" (first ingested date).
-    props = job_input.get_all_properties()
-    if "last_date_amazon_transformed" in props:
-        pass
-    else:
-        props["last_date_amazon_transformed"] = '2020-01-01'
+    
+    # !!! COMPLETE THE PROPERTIES DEFINITION FOR last_date_amazon_transformed DATA JOB PROPERTY !!!
 
     # Read the candle review data from the cloud Trino DB and transform it into a df
     reviews_raw = job_input.execute_query(
         f"""
         SELECT *
-        FROM yankee_candle_reviews
+        FROM !!! ENTER HERE THE NAME OF THE TABLE WE POPULATED IN SCRIPT "20_ingest_amazon_reviews.py" !!!
         WHERE Date > '{props["last_date_amazon_transformed"]}'
         ORDER BY Date
         """
     )
-    df = pd.DataFrame(reviews_raw, columns=['date', 'review'])
+    df = # <- !!! CONVERT THE reviews_raw OBJECT INTO A PANDAS DATAFRAME THROUGH pd.DataFrame(). NAME THE COLUMNS 'date' AND 'review' !!!
 
     # If any data is returned, transform
     if len(df) > 0:
@@ -61,12 +58,12 @@ def run(job_input: IJobInput):
         job_input.send_tabular_data_for_ingestion(
             rows=df_group.values,
             column_names=df_group.columns.to_list(),
-            destination_table="yankee_candle_reviews_transformed"
+            destination_table= # <- !!! ENTER HERE THE NAME OF THE TABLE WE CREATED IN SCRIPT "03_create_yankee_candle_reviews_transformed.sql" !!!
         )
         # Reset the last_date property value to the latest date in the transformed db table
-        props["last_date_amazon_transformed"] = max(df_group['date'])
+        props["last_date_amazon_transformed"] = # <- !!! ASSIGN THE MAXIMUM DATE FROM df_group TO THE last_date_amazon_transformed PROPERTY !!!
         job_input.set_all_properties(props)
-        log.info(f"Success! {len(df_group)} rows were inserted in yankee_candle_reviews_transformed table.")
+        log.info(f"Success! {len(df_group)} rows were inserted in the transformed yankee candle reviews table.")
         # Delay execution for 10 seconds so that records are ingested into the DB before going to the next script
         time.sleep(10)
     else:

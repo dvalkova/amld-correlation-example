@@ -31,20 +31,20 @@ def run(job_input: IJobInput):
         props["last_date_correlation"] = '2020-01-01'
 
     # Read the candle review data and transform to df
-    reviews = job_input.execute_query(
+    reviews = job_input.( # <- !!! BEFORE THE ( ENTER THE APPROPRIATE JOB_INPUT METHOD FOR EXECUTING SQL STATEMENTS FROM PYTHON SCRIPTS !!!
         f"""
         SELECT date, num_no_scent_reviews 
-        FROM yankee_candle_reviews_transformed
+        FROM !!! ENTER HERE THE NAME OF THE TABLE WE POPULATED IN SCRIPT "30_transform_amazon_reviews.py" !!!
         WHERE date > '{props["last_date_correlation"]}'
         """
     )
     reviews_df = pd.DataFrame(reviews, columns=['date', 'num_no_scent_reviews'])
 
     # Read the covid data and transform to df
-    covid = job_input.execute_query(
+    covid = job_input.( # <- !!! BEFORE THE ( ENTER THE APPROPRIATE JOB_INPUT METHOD FOR EXECUTING SQL STATEMENTS FROM PYTHON SCRIPTS !!!
         f"""
         SELECT * 
-        FROM covid_cases_usa_daily
+        FROM !!! ENTER HERE THE NAME OF THE TABLE WE POPULATED IN SCRIPT "10_ingest_covid_data.py" !!!
         WHERE obs_date > '{props["last_date_correlation"]}'
         """
     )
@@ -83,13 +83,13 @@ def run(job_input: IJobInput):
         df_merged_weekly['correlation_coeff'] = corr_coeff
 
         # Original date format: "2022-02-06T00:00:00". Transform into "2022-02-06"
-        df_merged_weekly['date'] = df_merged_weekly['date'].dt.strftime('%Y-%m-%d')
+        df_merged_weekly['date'] = df_merged_weekly['date'].dt. # <- !!! ENTER HERE THE PANDAS DATETIME METHOD THAT HANDLES DATETIME FORMAT TRANSFORMATIONS !!!
 
         # Ingest the weekly data and correlation coefficients into a new table using VDK's job_input method
         job_input.send_tabular_data_for_ingestion(
             rows=df_merged_weekly.values,
             column_names=df_merged_weekly.columns.to_list(),
-            destination_table="weekly_correlation"
+            destination_table= # <- !!! ENTER HERE THE NAME OF THE TABLE WE CREATED IN SCRIPT "04_create_weekly_correlation.sql" !!!
         )
         # Reset the last_date property value to the latest date in the covid source db table
         props["last_date_correlation"] = max(df_merged_weekly['date'])

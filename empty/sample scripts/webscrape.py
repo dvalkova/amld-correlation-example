@@ -4,6 +4,10 @@ import re
 
 # USER DEFINED FUNCTIONS FOR WEB SCRAPING
 
+# Web resources used: 
+# - https://www.geeksforgeeks.org/web-scraping-amazon-customer-reviews/
+# - https://gist.github.com/slowkow/7a7f61f495e3dbb7e3d767f97bd7304b
+
 # Headers parameter for the GET request method
 HEADERS = (
     {
@@ -60,7 +64,7 @@ def rev_date(soup: BeautifulSoup) -> list:
 
 
 def remove_emoji(string: str) -> str:
-    """Remove emojis from text and returns a 'cleaned' string."""
+    """Remove emojis from text using regular expressions and returns a 'cleaned' string."""
 
     emoji_pattern = re.compile("["
                                u"\U0001F600-\U0001F64F"  # emoticons

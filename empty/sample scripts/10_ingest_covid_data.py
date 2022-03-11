@@ -18,7 +18,7 @@ def run(job_input: IJobInput):
 
     # Create/retrieve the data job property storing latest ingested date for covid_cases_usa_daily table.
     # If the property does not exist, set it to "2020-01-01" (around the start of the pandemic).
-    props = job_input.get_all_properties()
+    props = job_input. # <- !!! ENTER HERE THE VDK'S JOB_INPUT FUNCTION THAT GETS ALL JOB PROPERTIES !!!
     if "last_date_covid" in props:
         pass
     else:
@@ -28,7 +28,7 @@ def run(job_input: IJobInput):
     url = "https://covid-api.mmediagroup.fr/v1/history?country=US&status=confirmed"
 
     # Make a GET request to the COVID-19 API
-    response = requests.get(url)
+    response = requests. # <- !!! MAKE A GET REQUEST TO THE ABOVE URL USING THE APPROPRIATE METHOD OF THE REQUESTS PACKAGE !!!
     # Check if the request was successful
     response.raise_for_status()
 
@@ -50,10 +50,10 @@ def run(job_input: IJobInput):
         job_input.send_tabular_data_for_ingestion(
             rows=df_covid.values,
             column_names=df_covid.columns.to_list(),
-            destination_table="covid_cases_usa_daily"
+            destination_table="" # <- !!! ENTER BETWEEN THE QUOTATION MARKS THE NAME OF THE TABLE CREATED IN SCRIPT 01_create_covid_cases_usa_daily.sql) !!!
         )
         # Reset the last_date property value to the latest date in the covid source db table
         props["last_date_covid"] = max(df_covid['obs_date'])
         job_input.set_all_properties(props)
 
-    log.info(f"Success! {len(df_covid)} rows were inserted in table covid_cases_usa_daily.")
+    log.info(f"Success! {len(df_covid)} rows were inserted in the daily covid cases table.")

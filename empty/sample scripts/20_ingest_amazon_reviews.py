@@ -25,7 +25,7 @@ def run(job_input: IJobInput):
     if "last_date_amazon" in props:
         pass
     else:
-        props["last_date_amazon"] = '2020-01-01'
+        # <- !!! INITIALIZE THE "last_date_amazon" PROPERTY TO '2020-01-01' !!!
 
     # Initialize variables
     i = 1
@@ -90,14 +90,14 @@ def run(job_input: IJobInput):
     # Ingest the dataframe into a SQLite database using VDK's job_input method (if any results are fetched)
     if len(df) > 0:
         job_input.send_tabular_data_for_ingestion(
-            rows=df.values,
-            column_names=df.columns.to_list(),
-            destination_table="yankee_candle_reviews"
+            rows=, # <- !!! ENTER HERE THE VALUES THAT WILL BE INSERTED INTO THE ROWS OF THE TABLE !!!
+            column_names=, # <- !!! ENTER HERE THE COLUMNS NAMES USING THE SAME COLUMN NAMES AS IN THE REVIEWS DATA FRAME !!!
+            destination_table= # <- !!! ENTER HERE THE NAME OF THE TABLE WE CREATED IN SCRIPT "02_create_yankee_candle_reviews.sql" !!!
         )
         # Reset the last_date property value to the latest date in the amazon source db table
         props["last_date_amazon"] = max(df['Date'])
         job_input.set_all_properties(props)
 
-    log.info(f"Success! {len(df)} rows were inserted in table yankee_candle_reviews.")
+    log.info(f"Success! {len(df)} rows were inserted in raw yankee candle reviews table.")
     # Delay execution for 10 seconds so that records are ingested into the DB before going to the next script
     time.sleep(10)
